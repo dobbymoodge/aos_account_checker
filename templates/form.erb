@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>AOS Profile Checker</title>
+
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+        <![endif]-->
+  </head>
+  <body>
+    <% if uid %>
+    <h1>uid = <%= uid %></h1>
+    <% end %>
+    <% if mail %>
+    <h1>mail = <%= mail %></h1>
+    <% end %>
+    <% if req %>
+    <pre>
+      <%= req.params %>
+      <%= req.request_method %>
+    </pre>
+    <% end %>
+    <form class="form-horizontal" method="post">
+      <fieldset>
+        <!-- Form Name -->
+        <legend>AOS Profile Checker</legend>
+
+        <!-- Text input-->
+        <div class="form-group">
+          <label class="col-md-3 control-label" for="redhat_id">Red Hat KRB5 ID</label>
+          <div class="col-md-4">
+            <input id="redhat_id" name="redhat_id" type="text" placeholder="Red Hat ID" class="form-control " required="">
+            
+          </div>
+        </div>
+
+        <!-- Text input-->
+        <div class="form-group">
+          <label class="col-md-3 control-label" for="github_id">GitHub ID</label>
+          <div class="col-md-4">
+            <input id="github_id" name="github_id" type="text" placeholder="GitHub ID" class="form-control ">
+            
+          </div>
+        </div>
+
+        <!-- Text input-->
+        <div class="form-group">
+          <label class="col-md-3 control-label" for="trello_id">Trello ID</label>
+          <div class="col-md-4">
+            <input id="trello_id" name="trello_id" type="text" placeholder="Trello ID" class="form-control ">
+            
+          </div>
+        </div>
+
+        <!-- Button -->
+        <div class="form-group">
+          <label class="col-md-3 control-label" for="do_check"></label>
+          <div class="col-lg-6">
+            <button id="do_check" name="do_check" class="btn btn-primary">Check IDs</button>
+          </div>
+        </div>
+
+      </fieldset>
+    </form>
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="js/bootstrap.min.js"></script>
+  </body>
+</html>

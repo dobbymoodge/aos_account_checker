@@ -1,0 +1,17 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    net-ldap (0.15.0)
+    puma (3.7.0)
+    rack (2.0.1)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  net-ldap
+  puma
+  rack
+
+BUNDLED WITH
+   1.10.5
