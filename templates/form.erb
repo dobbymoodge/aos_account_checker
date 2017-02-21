@@ -18,18 +18,6 @@
         <![endif]-->
   </head>
   <body>
-    <% if uid %>
-    <h1>uid = <%= uid %></h1>
-    <% end %>
-    <% if mail %>
-    <h1>mail = <%= mail %></h1>
-    <% end %>
-    <% if req %>
-    <pre>
-      <%= req.params %>
-      <%= req.request_method %>
-    </pre>
-    <% end %>
     <form class="form-horizontal" method="post">
       <fieldset>
         <!-- Form Name -->
@@ -39,25 +27,27 @@
         <div class="form-group">
           <label class="col-md-3 control-label" for="redhat_id">Red Hat KRB5 ID</label>
           <div class="col-md-4">
-            <input id="redhat_id" name="redhat_id" type="text" placeholder="Red Hat ID" class="form-control " required="">
+            <input id="redhat_id" name="redhat_id" type="text" placeholder="Red Hat ID" class="form-control " required="" <% if redhat_id %>value="<%= redhat_id %>"<% end %> >
             
           </div>
         </div>
 
         <!-- Text input-->
-        <div class="form-group">
+        <div class="form-group <%= github_valid ? (github_imperfect ? "has-warning" : "has-success") : "" %>">
           <label class="col-md-3 control-label" for="github_id">GitHub ID</label>
           <div class="col-md-4">
-            <input id="github_id" name="github_id" type="text" placeholder="GitHub ID" class="form-control ">
-            
+            <input id="github_id" name="github_id" type="text" placeholder="GitHub ID" class="form-control " <% if github_id %>value="<%= github_id %>"<% end %> >
+            <% if github_imperfect %>
+            <p class="help-block">Your GitHub profile doesn't give a conclusive match.</p>
+            <% end %>
           </div>
         </div>
 
         <!-- Text input-->
-        <div class="form-group">
+        <div class="form-group <%= trello_valid ? (trello_imperfect ? "has-warning" : "has-success") : "" %>">
           <label class="col-md-3 control-label" for="trello_id">Trello ID</label>
           <div class="col-md-4">
-            <input id="trello_id" name="trello_id" type="text" placeholder="Trello ID" class="form-control ">
+            <input id="trello_id" name="trello_id" type="text" placeholder="Trello ID" class="form-control " <% if trello_id %>value="<%= trello_id %>"<% end %> >
             
           </div>
         </div>
