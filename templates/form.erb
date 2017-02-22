@@ -33,21 +33,78 @@
         </div>
 
         <!-- Text input-->
-        <div class="form-group <%= github_valid ? (github_imperfect ? "has-warning" : "has-success") : "" %>">
+<% github_stat_class = case github_status
+     when :valid
+       "has-success"
+     when :invalid
+       "has-error"
+     when :imperfect
+       "has-warning"
+     when :error
+       "has-warning"
+     else
+       ""
+     end
+%>
+        <div class="form-group <%= github_stat_class %>">
           <label class="col-md-3 control-label" for="github_id">GitHub ID</label>
           <div class="col-md-4">
             <input id="github_id" name="github_id" type="text" placeholder="GitHub ID" class="form-control " <% if github_id %>value="<%= github_id %>"<% end %> >
-            <% if github_imperfect %>
-            <p class="help-block">Your GitHub profile doesn't give a conclusive match.</p>
-            <% end %>
+<%
+if github_reasons.any?
+%>
+            <p class="help-block">One or more errors occured checking your GitHub Profile:
+              <ul>
+<%
+  github_reasons.each do |reason|
+%>
+                <li><%= reason %></li>
+<%
+  end
+%>
+              </ul>
+            </p>
+<%
+end
+%>
           </div>
         </div>
 
+<% trello_stat_class = case trello_status
+     when :valid
+       "has-success"
+     when :invalid
+       "has-error"
+     when :imperfect
+       "has-warning"
+     when :error
+       "has-warning"
+     else
+       ""
+     end
+%>
         <!-- Text input-->
-        <div class="form-group <%= trello_valid ? (trello_imperfect ? "has-warning" : "has-success") : "" %>">
+        <div class="form-group <%= trello_stat_class %>">
           <label class="col-md-3 control-label" for="trello_id">Trello ID</label>
           <div class="col-md-4">
             <input id="trello_id" name="trello_id" type="text" placeholder="Trello ID" class="form-control " <% if trello_id %>value="<%= trello_id %>"<% end %> >
+<%
+if trello_reasons.any?
+%>
+            <p class="help-block">One or more errors occured checking your Trello Profile:
+              <ul>
+<%
+  trello_reasons.each do |reason|
+%>
+                <li><%= reason %></li>
+<%
+  end
+%>
+              </ul>
+            </p>
+<%
+end
+%>
             
           </div>
         </div>

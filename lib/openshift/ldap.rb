@@ -27,15 +27,15 @@ module OpenShift
 
     attr_accessor :host, :base_dn
 
-    def initialize(opts = {})
-      @host = 'ldap.rdu.redhat.com'
-      @base_dn = 'ou=Users, dc=redhat, dc=com'
-      # opts.each do |k,v|
-      #   send("#{k}=",v)
-      # end
+    def initialize(opts)
+      # @host = 'ldap.rdu.redhat.com'
+      # @base_dn = 'ou=Users, dc=redhat, dc=com'
+      opts.each do |k,v|
+        send("#{k}=",v)
+      end
     end
 
-    def ldap_user_by_uid(uid)
+    def user_by_uid(uid)
       user = nil
       ldap = ldap_connect
       if ldap.bind
@@ -47,7 +47,7 @@ module OpenShift
       user
     end
 
-    def ldap_user_by_email(email)
+    def user_by_email(email)
       user = nil
       ldap = ldap_connect
       if ldap.bind
@@ -58,7 +58,7 @@ module OpenShift
       user
     end
 
-    def ldap_users_by_name(givenName, sn, perfect_match=false)
+    def users_by_name(givenName, sn, perfect_match=false)
       users = []
       ldap = ldap_connect
       if ldap.bind
@@ -68,7 +68,7 @@ module OpenShift
       users
     end
 
-    def ldap_users_by_last_name(sn)
+    def users_by_last_name(sn)
       users = []
       ldap = ldap_connect
       if ldap.bind
@@ -145,19 +145,19 @@ module OpenShift
       first_name, middle_name, last_name = split_names(name)
       users = nil
       if last_name
-        users = ldap_users_by_name(first_name, last_name, true)
+        users = users_by_name(first_name, last_name, true)
         if users.length != 1 && !(allow_multiple && users.length > 1)
-          users = ldap_users_by_name(first_name, last_name)
+          users = users_by_name(first_name, last_name)
           if (users.length != 1 && middle_name) && !(allow_multiple && users.length > 1)
-            users = ldap_users_by_name(middle_name, last_name)
+            users = users_by_name(middle_name, last_name)
             if users.length != 1 && !(allow_multiple && users.length > 1)
-              users = ldap_users_by_name(first_name, "#{middle_name} #{last_name}")
+              users = users_by_name(first_name, "#{middle_name} #{last_name}")
             end
           end
           if users.length != 1 && !(allow_multiple && users.length > 1) 
-            users = ldap_users_by_name(first_name[0..2], last_name)
+            users = users_by_name(first_name[0..2], last_name)
             if users.length != 1 && !(allow_multiple && users.length > 1)
-              last_name_users = ldap_users_by_last_name(last_name)
+              last_name_users = users_by_last_name(last_name)
               users = last_name_users if last_name_users.length == 1
             end
           end
