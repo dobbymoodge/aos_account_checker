@@ -5,7 +5,7 @@ $: << File.expand_path(File.dirname(__FILE__))
 
 require 'rack/lobster'
 require 'net/ldap'
-require 'lib/openshift/ldap'
+require 'lib/openshift'
 require 'lib/openshift/profile_check'
 
 use Rack::Static, :urls => ["/css", "/js", "/fonts"]

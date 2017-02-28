@@ -87,36 +87,32 @@ module OpenShift
 
     def github_user_check(user_name)
       puts "github_user_check(#{user_name})"
-      user = github.user(user_name)
-      login = user['login']
-      name = user['name']
-      email = user['email']
-      company = user['company']
       reasons = []
-      status = email_check(email)
-      puts "1 github [status, reasons]: #{[status, reasons]}"
-      if status == :invalid
-        status, reasons = login_name_check(login, name)
+      status = :unchecked
+      if user_name && !user_name.empty?
+        user = github.user(user_name)
+        login = user['login']
+        name = user['name']
+        email = user['email']
+        company = user['company']
+        status = email_check(email)
+        puts "1 github [status, reasons]: #{[status, reasons]}"
+        if status == :invalid
+          status, reasons = login_name_check(login, name)
+        end
+        puts "2 github [status, reasons]: #{[status, reasons]}"
+        if company !~ VALID_COMPANY_PATTERN
+          status = :invalid
+          reasons += ["Profile Company field doesn't match \"#{COMPANY_NAME}\""]
+        end
+        puts "3 github [status, reasons]: #{[status, reasons]}"
       end
-      puts "2 github [status, reasons]: #{[status, reasons]}"
-      if company !~ VALID_COMPANY_PATTERN
-        status = :invalid
-        reasons += ["Profile Company field doesn't match \"#{COMPANY_NAME}\""]
-      end
-      puts "3 github [status, reasons]: #{[status, reasons]}"
       [status, reasons]
     end
 
-    def trello_user_check(email)
+    def trello_user_check(email, member)
       status = :unchecked
       reasons = []
-      member = nil
-      begin
-        member = trello.member(email)
-      rescue Exception => e
-        status = :invalid
-        reasons += ["No matching Trello account found for email #{email}"]
-      end
       if member
         login = member.username
         name = member.full_name
@@ -132,6 +128,7 @@ module OpenShift
       erb = ERB.new(File.open(File.expand_path("templates/form.erb"), "rb").read)
       pd = ProfileData.new()
       pd.req = Rack::Request.new(env)
+      trello_member = nil
       pd.redhat_id = pd.req.params['redhat_id'] if pd.req.params['redhat_id']
       pd.github_id = pd.req.params['github_id'] if pd.req.params['github_id']
       pd.trello_id = pd.req.params['trello_id'] if pd.req.params['trello_id']
@@ -144,11 +141,22 @@ module OpenShift
         puts "Error with github: #{e.message}"
       end
       puts "[pd.github_status, pd.github_reasons]: #{[pd.github_status, pd.github_reasons]}"
-      begin
-        pd.trello_status, pd.trello_reasons = trello_user_check(email) if pd.req.params['redhat_id']
-      rescue Exception => e
-        pd.trello_status = :error
-        puts "Error with trello: #{e.message}"
+      if pd.req.params['redhat_id']
+        begin
+          begin
+            trello_member = trello.member(email)
+            pd.trello_id = trello_member.username
+          rescue Exception => e
+            puts "Error with trello: #{e.message}"
+            pd.trello_status = :invalid
+            pd.trello_reasons += ["No matching Trello account found for email #{email}"]
+          end
+          pd.trello_status, trello_reasons = trello_user_check(email, trello_member)
+          pd.trello_reasons += trello_reasons
+        rescue Exception => e
+          pd.trello_status = :error
+          puts "Error with trello: #{e.message}"
+        end
       end
       form_content = erb.result(pd.get_binding)
       [200, { "Content-Type" => "text/html" }, [ form_content ]]

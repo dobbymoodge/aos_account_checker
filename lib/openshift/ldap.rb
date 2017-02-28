@@ -19,9 +19,9 @@ I18n.backend.store_translations(:en,
                                 })
 I18n.config.enforce_available_locales = false
 
-module OpenShift
+# module OpenShift
   class LdapHelper
-
+    include OpenShift
     ATTRS = ['uid', 'mail', 'cn']
     IMPERFECT_MATCH = '(imperfect match)'
 
@@ -213,5 +213,5 @@ module OpenShift
     end
 
   end
-end
+# end
 

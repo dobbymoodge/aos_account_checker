@@ -1,3 +1,6 @@
+<%
+if !req['fragment']
+%>
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -22,7 +25,6 @@
       <fieldset>
         <!-- Form Name -->
         <legend>AOS Profile Checker</legend>
-
         <!-- Text input-->
         <div class="form-group">
           <label class="col-md-3 control-label" for="redhat_id">Red Hat KRB5 ID</label>
@@ -31,7 +33,12 @@
             
           </div>
         </div>
-
+<%
+end
+%>
+<%
+if (req['fragment'] && req['github_id']) || !req['fragment']
+%>
         <!-- Text input-->
 <% github_stat_class = case github_status
      when :valid
@@ -46,30 +53,35 @@
        ""
      end
 %>
-        <div class="form-group <%= github_stat_class %>">
+        <div class="form-group <%= github_stat_class %>" id="form-github-section">
           <label class="col-md-3 control-label" for="github_id">GitHub ID</label>
           <div class="col-md-4">
             <input id="github_id" name="github_id" type="text" placeholder="GitHub ID" class="form-control " <% if github_id %>value="<%= github_id %>"<% end %> >
 <%
-if github_reasons.any?
+  if github_reasons.any?
 %>
             <p class="help-block">One or more errors occured checking your GitHub Profile:
               <ul>
 <%
-  github_reasons.each do |reason|
+    github_reasons.each do |reason|
 %>
                 <li><%= reason %></li>
 <%
-  end
+    end
 %>
               </ul>
             </p>
 <%
-end
+  end
 %>
           </div>
         </div>
-
+<%
+end
+%>
+<%
+if (req['fragment'] && req['redhat_id']) || !req['fragment']
+%>
 <% trello_stat_class = case trello_status
      when :valid
        "has-success"
@@ -84,30 +96,37 @@ end
      end
 %>
         <!-- Text input-->
-        <div class="form-group <%= trello_stat_class %>">
+        <div class="form-group <%= trello_stat_class %>" id="form-trello-section">
           <label class="col-md-3 control-label" for="trello_id">Trello ID</label>
           <div class="col-md-4">
-            <input id="trello_id" name="trello_id" type="text" placeholder="Trello ID" class="form-control " <% if trello_id %>value="<%= trello_id %>"<% end %> >
+            <!-- <input id="trello_id" name="trello_id" type="text" placeholder="Trello ID" class="form-control " <% if trello_id %>value="<%= trello_id %>"<% end %> > -->
+            <% if trello_id %><output name="trello_id" id="trello_id"><a href="https://trello.com/<%= trello_id %>"><%= trello_id %></a></output><% end %>
 <%
-if trello_reasons.any?
+  if trello_reasons.any?
 %>
             <p class="help-block">One or more errors occured checking your Trello Profile:
               <ul>
 <%
-  trello_reasons.each do |reason|
+    trello_reasons.each do |reason|
 %>
                 <li><%= reason %></li>
 <%
-  end
+    end
 %>
               </ul>
             </p>
 <%
-end
+  end
 %>
             
           </div>
         </div>
+<%
+end
+%>
+<%
+if !req['fragment']
+%>
 
         <!-- Button -->
         <div class="form-group">
@@ -123,5 +142,9 @@ end
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="js/bootstrap.min.js"></script>
+    <script src="js/profile_check.js"></script>
   </body>
 </html>
+<%
+end
+%>
