@@ -1,3 +1,4 @@
 config/github.yml
 config/ldap.yml
 config/trello.yml
+Gemfile.lock
