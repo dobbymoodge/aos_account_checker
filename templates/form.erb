@@ -39,7 +39,6 @@ end
 <%
 if (req['fragment'] && req['github_id']) || !req['fragment']
 %>
-        <!-- Text input-->
 <% github_stat_class = case github_status
      when :valid
        "has-success"
@@ -95,7 +94,6 @@ if (req['fragment'] && req['redhat_id']) || !req['fragment']
        ""
      end
 %>
-        <!-- Text input-->
         <div class="form-group <%= trello_stat_class %>" id="form-trello-section">
           <label class="col-md-3 control-label" for="trello_id">Trello ID</label>
           <div class="col-md-4">

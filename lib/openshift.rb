@@ -4,8 +4,8 @@ $: << File.expand_path(File.dirname(__FILE__))
 
 module OpenShift
   DEFAULT_RETRIES = 3
-  DEFAULT_RETRY_SLEEP = 2
-  DEFAULT_RETRY_INC = 1
+  DEFAULT_RETRY_SLEEP = 0.5 #2
+  DEFAULT_RETRY_INC = 0.5 #1
 
   def retry_sleep(retry_count)
     sleep DEFAULT_RETRY_SLEEP + (DEFAULT_RETRY_INC * retry_count)
