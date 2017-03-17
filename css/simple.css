@@ -1,0 +1,4 @@
+.has-error > input {
+  background-color: #ffdddd;
+  border-color: #a0a0a0;
+}
