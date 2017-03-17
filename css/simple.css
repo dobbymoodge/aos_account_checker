@@ -2,3 +2,51 @@
   background-color: #ffdddd;
   border-color: #a0a0a0;
 }
+
+.content {
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 50em;
+}
+
+output {
+  display: inline-block;
+  vertical-align: middle;
+  padding: .5em .6em;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  box-shadow: inset 0 1px 3px #ddd;
+  margin: 0;
+}
+
+output.pure-form-message-inline {
+  font-size: 100%;
+}
+
+.need-input {
+  color: #666;
+}
+
+.valid input, .valid output {
+  background-color: #dfd;
+}
+
+.imperfect input, .imperfect output {
+  background-color: #ffd;
+}
+
+.invalid input, .invalid output {
+  background-color: #fdd;
+}
+
+.error input, .error output {
+  background-color: #fdd;
+  font-weight: bold;
+}
+
+legend {
+  font-size: large;
+  font-weight: bold;
+  background-color: #ddd;
+}

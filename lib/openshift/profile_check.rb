@@ -7,6 +7,7 @@ require 'rack/request'
 require 'erb'
 
 module OpenShift
+
   class ProfileData
     attr_accessor :uid, :req, :mail,
                   :github_status, :github_reasons, :github_id,
@@ -14,9 +15,9 @@ module OpenShift
                   :redhat_status, :redhat_reasons, :redhat_id
 
     def initialize()
-      @github_status = :unchecked
-      @trello_status = :unchecked
-      @redhat_status = :unchecked
+      @github_status = CLASS_UNCHECKED
+      @trello_status = CLASS_UNCHECKED
+      @redhat_status = CLASS_UNCHECKED
 
       @github_reasons = []
       @trello_reasons = []
@@ -60,26 +61,26 @@ module OpenShift
 
     def email_check(email)
       #email = "${redhat_id}#{VALID_EMAIL_DOMAIN}"
-      status = :invalid
+      status = CLASS_INVALID
       if email && ldap.user_by_email(email)
-        status = :valid
+        status = CLASS_VALID
       end
       status
     end
 
     def login_name_check(login, name)
       reasons = []
-      status = :invalid
+      status = CLASS_INVALID
       valid, imperfect = ldap.valid_user_name(login, name)
       if valid
         if imperfect
-          status = :imperfect
+          status = CLASS_IMPERFECT
           reasons += ["Profile Name field matches multiple users"]
         else
-          status = :valid
+          status = CLASS_VALID
         end
       else
-        status = :invalid
+        status = CLASS_INVALID
         reasons += ["Profile Name field doesn't match any valid user"]
       end
       [status, reasons]
@@ -88,7 +89,7 @@ module OpenShift
     def github_user_check(user_name)
       puts "github_user_check(#{user_name})"
       reasons = []
-      status = :unchecked
+      status = CLASS_UNCHECKED
       if user_name && !user_name.empty?
         user = github.user(user_name)
         login = user['login']
@@ -97,12 +98,12 @@ module OpenShift
         company = user['company']
         status = email_check(email)
         puts "1 github [status, reasons]: #{[status, reasons]}"
-        if status == :invalid
+        if status == CLASS_INVALID
           status, reasons = login_name_check(login, name)
         end
         puts "2 github [status, reasons]: #{[status, reasons]}"
         if company !~ VALID_COMPANY_PATTERN
-          status = :invalid
+          status = CLASS_INVALID
           reasons += ["Profile Company field doesn't match \"#{COMPANY_NAME}\""]
         end
         puts "3 github [status, reasons]: #{[status, reasons]}"
@@ -111,7 +112,7 @@ module OpenShift
     end
 
     def trello_user_check(email, member)
-      status = :unchecked
+      status = CLASS_UNCHECKED
       reasons = []
       if member
         login = member.username
@@ -122,6 +123,10 @@ module OpenShift
       end
       puts "trello [status, reasons]: #{[status, reasons]}"
       [status, reasons]
+    end
+
+    def field_status_class(status)
+      return CLASS_MAP[status]
     end
 
     def call(env)
@@ -137,7 +142,7 @@ module OpenShift
       begin
         pd.github_status, pd.github_reasons = github_user_check(pd.github_id) if pd.req.params['github_id']
       rescue Exception => e
-        pd.github_status = :error
+        pd.github_status = CLASS_ERROR
         puts "Error with github: #{e.message}"
       end
       puts "[pd.github_status, pd.github_reasons]: #{[pd.github_status, pd.github_reasons]}"
@@ -145,16 +150,24 @@ module OpenShift
         begin
           begin
             trello_member = trello.member(email)
-            pd.trello_id = trello_member.username
+            if !trello_member
+              pd.trello_status = CLASS_INVALID
+            else
+              pd.trello_status = CLASS_VALID
+              pd.trello_id = trello_member.username
+            end
           rescue Exception => e
             puts "Error with trello: #{e.message}"
-            pd.trello_status = :invalid
-            pd.trello_reasons += ["No matching Trello account found for email #{email}"]
+            pd.trello_status = CLASS_INVALID
           end
-          pd.trello_status, trello_reasons = trello_user_check(email, trello_member)
-          pd.trello_reasons += trello_reasons
+          if pd.trello_status == CLASS_INVALID
+            pd.trello_reasons += ["No matching Trello account found for email #{email}"]
+          else
+            pd.trello_status, trello_reasons = trello_user_check(email, trello_member)
+            pd.trello_reasons += trello_reasons
+          end
         rescue Exception => e
-          pd.trello_status = :error
+          pd.trello_status = CLASS_ERROR
           puts "Error with trello: #{e.message}"
         end
       end

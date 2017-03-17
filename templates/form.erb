@@ -5,110 +5,64 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <link href="css/pure-min.css" rel="stylesheet">
     <link href="css/simple.css" rel="stylesheet">
     <title>AOS Profile Checker</title>
   </head>
   <body>
-    <form class="form-horizontal" method="post">
+    <form class="pure-form pure-form-aligned" method="post">
       <fieldset>
         <legend>AOS Profile Checker</legend>
-        <div class="form-group">
-          <label class="control-label" for="redhat_id">Red Hat KRB5 ID</label>
-          <div>
-            <input id="redhat_id" name="redhat_id" type="text" placeholder="Red Hat ID" class="form-control " required="" <% if redhat_id %>value="<%= redhat_id %>"<% end %> >
-            
+        <div class="content">
+          <div class="pure-control-group <%= redhat_status %>">
+            <label for="redhat_id">Red Hat KRB5 ID</label>
+            <input id="redhat_id" name="redhat_id" type="text" placeholder="Red Hat ID" class="pure-u-1-2" required="" <% if redhat_id %>value="<%= redhat_id %>"<% end %> >
           </div>
-        </div>
-<% github_stat_class = case github_status
-     when :valid
-       "has-success"
-     when :invalid
-       "has-error"
-     when :imperfect
-       "has-warning"
-     when :error
-       "has-warning"
-     else
-       ""
-     end
-%>
-        <div class="form-group <%= github_stat_class %>" id="form-github-section">
-          <label class="control-label" for="github_id">GitHub ID</label>
-          <div>
-            <input id="github_id" name="github_id" type="text" placeholder="GitHub ID" class="form-control " <% if github_id %>value="<%= github_id %>"<% end %> >
-<%
-  if github_reasons.any?
-%>
-            <p class="help-block">One or more errors occured checking your GitHub Profile:
-              <ul>
-<%
-    github_reasons.each do |reason|
-%>
-                <li><%= reason %></li>
-<%
-    end
-%>
-              </ul>
-            </p>
-<%
-  end
-%>
+          <div class="pure-control-group <%= github_status %>" id="form-github-section">
+            <label for="github_id">GitHub ID</label>
+            <input id="github_id" name="github_id" type="text" placeholder="GitHub ID" class="pure-u-1-2" <% if github_id %>value="<%= github_id %>"<% end %> >
+            <% if github_reasons.any? %>
+              <p class="help-block">One or more errors occured checking your GitHub Profile:
+                <ul>
+                  <% github_reasons.each do |reason| %>
+                    <li><%= reason %></li>
+                  <% end %>
+                </ul>
+              </p>
+            <% end %>
           </div>
-        </div>
-<% trello_stat_class = case trello_status
-     when :valid
-       "has-success"
-     when :invalid
-       "has-error"
-     when :imperfect
-       "has-warning"
-     when :error
-       "has-warning"
-     else
-       ""
-     end
-%>
-        <div class="form-group <%= trello_stat_class %>" id="form-trello-section">
-          <label class="control-label" for="trello_id">Trello ID</label>
-          <div>
+          <div class="pure-control-group <%= trello_status %>" id="form-trello-section">
+            <label for="trello_id">Trello ID</label>
             <!-- <input id="trello_id" name="trello_id" type="text" placeholder="Trello ID" class="form-control " <% if trello_id %>value="<%= trello_id %>"<% end %> > -->
-            <% if trello_id %><output name="trello_id" id="trello_id"><a href="https://trello.com/<%= trello_id %>"><%= trello_id %></a></output><% end %>
-<%
-  if trello_reasons.any?
-%>
-            <p class="help-block">One or more errors occured checking your Trello Profile:
-              <ul>
-<%
-    trello_reasons.each do |reason|
-%>
-                <li><%= reason %></li>
-<%
-    end
-%>
-              </ul>
-            </p>
-<%
-  end
-%>
+            <output name="trello_id" id="trello_id" class="pure-u-1-2 pure-form-message-inline<% if !trello_id %> need-input<% end %>">
+              <% if trello_id %>
+                <a href="https://trello.com/<%= trello_id %>"><%= trello_id %></a>
+              <% else %>
+                Requires KRB5 ID
+              <% end %>
+            </output>
+            <% if trello_reasons.any? %>
+              <p class="help-block">One or more errors occured checking your Trello Profile:
+                <ul>
+                  <% trello_reasons.each do |reason| %>
+                    <li><%= reason %></li>
+                  <% end %>
+                </ul>
+              </p>
+            <% end %>
           </div>
+          <% if !req['fragment'] %>
+            <div class="pure-control-group">
+              <label for="do_check"></label>
+              <button id="do_check" name="do_check" class="btn btn-primary">Check IDs</button>
+            </div>
         </div>
-<%
-if !req['fragment']
-%>
-        <div class="form-group">
-          <label class="control-label" for="do_check"></label>
-          <div>
-            <button id="do_check" name="do_check" class="btn btn-primary">Check IDs</button>
-          </div>
-        </div>
-
       </fieldset>
     </form>
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="js/profile_check.js"></script>
+        </div>
   </body>
 </html>
-<%
-end
-%>
+          <% end %>
