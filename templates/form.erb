@@ -22,47 +22,50 @@
             <label for="github_id">GitHub ID</label>
             <input id="github_id" name="github_id" type="text" placeholder="GitHub ID" class="pure-u-1-2" <% if github_id %>value="<%= github_id %>"<% end %> >
             <% if github_reasons.any? %>
-              <p class="help-block">One or more errors occured checking your GitHub Profile:
+              <div class="aos-form-message">One or more errors occured checking your GitHub Profile:
                 <ul>
                   <% github_reasons.each do |reason| %>
                     <li><%= reason %></li>
                   <% end %>
                 </ul>
-              </p>
+              </div>
             <% end %>
           </div>
           <div class="pure-control-group <%= trello_status %>" id="form-trello-section">
-            <label for="trello_id">Trello ID</label>
-            <!-- <input id="trello_id" name="trello_id" type="text" placeholder="Trello ID" class="form-control " <% if trello_id %>value="<%= trello_id %>"<% end %> > -->
-            <output name="trello_id" id="trello_id" class="pure-u-1-2 pure-form-message-inline<% if !trello_id %> need-input<% end %>">
-              <% if trello_id %>
-                <a href="https://trello.com/<%= trello_id %>"><%= trello_id %></a>
-              <% else %>
-                Requires KRB5 ID
-              <% end %>
-            </output>
+            <div>
+              <label for="trello_id">Trello ID</label>
+              <output name="trello_id" id="trello_id" class="pure-u-1-2<% if !trello_id %> need-input<% end %>">
+                <% if trello_id %>
+                  <a href="https://trello.com/<%= trello_id %>"><%= trello_id %></a>
+                <% else %>
+                  Requires KRB5 ID
+                <% end %>
+              </output>
+            </div>
+            <% if trello_fullname %>
+              <div>
+                <label for="trello_fullname">Trello Full Name</label>
+                <output name="trello_fullname" id="trello_fullname" class="pure-u-1-2">
+                  <%= trello_fullname %>
+                </output>
+              </div>
+            <% end %>
             <% if trello_reasons.any? %>
-              <p class="help-block">One or more errors occured checking your Trello Profile:
+              <div class="aos-form-message">One or more errors occured checking your Trello Profile:
                 <ul>
                   <% trello_reasons.each do |reason| %>
                     <li><%= reason %></li>
                   <% end %>
                 </ul>
-              </p>
+              </div>
             <% end %>
           </div>
-          <% if !req['fragment'] %>
-            <div class="pure-control-group">
-              <label for="do_check"></label>
-              <button id="do_check" name="do_check" class="btn btn-primary">Check IDs</button>
-            </div>
+          <label for="do_check"></label>
+          <button id="do_check" name="do_check" class="btn btn-primary">Check IDs</button>
         </div>
       </fieldset>
     </form>
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <script src="js/profile_check.js"></script>
-        </div>
   </body>
 </html>
-          <% end %>

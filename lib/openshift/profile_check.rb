@@ -9,10 +9,11 @@ require 'erb'
 module OpenShift
 
   class ProfileData
-    attr_accessor :uid, :req, :mail,
+    attr_accessor :uid, :mail,
                   :github_status, :github_reasons, :github_id,
                   :trello_status, :trello_reasons, :trello_id,
                   :redhat_status, :redhat_reasons, :redhat_id
+    attr_accessor :trello_fullname
 
     def initialize()
       @github_status = CLASS_UNCHECKED
@@ -86,7 +87,7 @@ module OpenShift
       [status, reasons]
     end
 
-    def github_user_check(user_name)
+    def github_user_check(user_name, rh_email)
       puts "github_user_check(#{user_name})"
       reasons = []
       status = CLASS_UNCHECKED
@@ -100,6 +101,10 @@ module OpenShift
         puts "1 github [status, reasons]: #{[status, reasons]}"
         if status == CLASS_INVALID
           status, reasons = login_name_check(login, name)
+        end
+        if email != rh_email
+          status = CLASS_INVALID
+          reasons += ["Red Hat email address #{rh_email} doesn't match GitHub email address #{email}"]
         end
         puts "2 github [status, reasons]: #{[status, reasons]}"
         if company !~ VALID_COMPANY_PATTERN
@@ -132,21 +137,22 @@ module OpenShift
     def call(env)
       erb = ERB.new(File.open(File.expand_path("templates/form.erb"), "rb").read)
       pd = ProfileData.new()
-      pd.req = Rack::Request.new(env)
+      req = Rack::Request.new(env)
       trello_member = nil
-      pd.redhat_id = pd.req.params['redhat_id'] if pd.req.params['redhat_id']
-      pd.github_id = pd.req.params['github_id'] if pd.req.params['github_id']
-      pd.trello_id = pd.req.params['trello_id'] if pd.req.params['trello_id']
-      email = "#{pd.req.params['redhat_id']}#{VALID_EMAIL_DOMAIN}" if pd.req.params['redhat_id']
+      pd.redhat_id = req.params['redhat_id'] if req.params['redhat_id']
+      pd.github_id = req.params['github_id'] if req.params['github_id']
+      pd.trello_id = req.params['trello_id'] if req.params['trello_id']
+      email = "#{req.params['redhat_id']}#{VALID_EMAIL_DOMAIN}" if req.params['redhat_id']
       pd.redhat_status = email_check(email)
       begin
-        pd.github_status, pd.github_reasons = github_user_check(pd.github_id) if pd.req.params['github_id']
+        pd.github_status, pd.github_reasons = github_user_check(pd.github_id, email) if req.params['github_id']
       rescue Exception => e
         pd.github_status = CLASS_ERROR
+        pd.github_reasons = [e.message]
         puts "Error with github: #{e.message}"
       end
       puts "[pd.github_status, pd.github_reasons]: #{[pd.github_status, pd.github_reasons]}"
-      if pd.req.params['redhat_id']
+      if req.params['redhat_id']
         begin
           begin
             trello_member = trello.member(email)
@@ -155,6 +161,7 @@ module OpenShift
             else
               pd.trello_status = CLASS_VALID
               pd.trello_id = trello_member.username
+              pd.trello_fullname = trello_member.full_name
             end
           rescue Exception => e
             puts "Error with trello: #{e.message}"

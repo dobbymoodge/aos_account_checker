@@ -9,19 +9,63 @@
   max-width: 50em;
 }
 
-output {
-  display: inline-block;
-  vertical-align: middle;
-  padding: .5em .6em;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-sizing: border-box;
-  box-shadow: inset 0 1px 3px #ddd;
-  margin: 0;
+pure-form-aligned output {
+    display: inline-block;
+    *display: inline;
+    *zoom: 1;
+    vertical-align: middle;
 }
 
-output.pure-form-message-inline {
-  font-size: 100%;
+.pure-form output {
+  padding: 0.5em 0.6em;
+  display: inline-block;
+  border: 1px solid #ccc;
+  box-shadow: inset 0 1px 3px #ddd;
+  border-radius: 4px;
+  vertical-align: middle;
+  box-sizing: border-box;  /* margin: 0; */
+  /*   font-size: 100%; */
+  /* position: relative; */
+  /* top: -1px; */
+}
+
+/* output.pure-form-message-inline { */
+/*   font-size: 100%; */
+/* } */
+
+/* .pure-form .pure-group fieldset { */
+/*     margin-bottom: 10px; */
+/* } */
+.pure-form .pure-group output {
+    display: block;
+    padding: 10px;
+    margin: 0 0 -1px;
+    border-radius: 0;
+    position: relative;
+    top: -1px;
+}
+.pure-form .pure-group output:focus {
+    z-index: 3;
+}
+.pure-form .pure-group output:first-child {
+    top: 1px;
+    border-radius: 4px 4px 0 0;
+    margin: 0;
+}
+.pure-form .pure-group output:first-child:last-child {
+    top: 1px;
+    border-radius: 4px;
+    margin: 0;
+}
+.pure-form .pure-group output:last-child {
+    top: -2px;
+    border-radius: 0 0 4px 4px;
+    margin: 0;
+}
+
+.aos-form-message {
+  padding: 0.5em 0.6em;
+  margin-left: 11em;
 }
 
 .need-input {
