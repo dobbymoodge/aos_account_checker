@@ -87,8 +87,7 @@ module OpenShift
       [status, reasons]
     end
 
-    def github_user_check(user_name, rh_email)
-      puts "github_user_check(#{user_name})"
+    def github_user_check(user_name)
       reasons = []
       status = CLASS_UNCHECKED
       if user_name && !user_name.empty?
@@ -98,20 +97,13 @@ module OpenShift
         email = user['email']
         company = user['company']
         status = email_check(email)
-        puts "1 github [status, reasons]: #{[status, reasons]}"
         if status == CLASS_INVALID
           status, reasons = login_name_check(login, name)
         end
-        if email != rh_email
-          status = CLASS_INVALID
-          reasons += ["Red Hat email address #{rh_email} doesn't match GitHub email address #{email}"]
-        end
-        puts "2 github [status, reasons]: #{[status, reasons]}"
         if company !~ VALID_COMPANY_PATTERN
           status = CLASS_INVALID
           reasons += ["Profile Company field doesn't match \"#{COMPANY_NAME}\""]
         end
-        puts "3 github [status, reasons]: #{[status, reasons]}"
       end
       [status, reasons]
     end
@@ -126,7 +118,6 @@ module OpenShift
         status, member_reasons = login_name_check(login, name)
         reasons += member_reasons if member_reasons
       end
-      puts "trello [status, reasons]: #{[status, reasons]}"
       [status, reasons]
     end
 
@@ -145,13 +136,11 @@ module OpenShift
       email = "#{req.params['redhat_id']}#{VALID_EMAIL_DOMAIN}" if req.params['redhat_id']
       pd.redhat_status = email_check(email)
       begin
-        pd.github_status, pd.github_reasons = github_user_check(pd.github_id, email) if req.params['github_id']
+        pd.github_status, pd.github_reasons = github_user_check(pd.github_id) if req.params['github_id']
       rescue Exception => e
         pd.github_status = CLASS_ERROR
-        pd.github_reasons = [e.message]
-        puts "Error with github: #{e.message}"
+        pd.github_reasons = ["GitHub User lookup failed: #{e.message}"]
       end
-      puts "[pd.github_status, pd.github_reasons]: #{[pd.github_status, pd.github_reasons]}"
       if req.params['redhat_id']
         begin
           begin
@@ -164,7 +153,6 @@ module OpenShift
               pd.trello_fullname = trello_member.full_name
             end
           rescue Exception => e
-            puts "Error with trello: #{e.message}"
             pd.trello_status = CLASS_INVALID
           end
           if pd.trello_status == CLASS_INVALID
@@ -175,7 +163,6 @@ module OpenShift
           end
         rescue Exception => e
           pd.trello_status = CLASS_ERROR
-          puts "Error with trello: #{e.message}"
         end
       end
       form_content = erb.result(pd.get_binding)
