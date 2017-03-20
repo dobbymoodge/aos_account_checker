@@ -4,7 +4,11 @@ require 'yaml'
 require 'ostruct'
 
 module OpenShift
-  CONFIG_DIR = File.expand_path(File.join(File.dirname(__FILE__),'../..','config'))
+  CONFIG_DIR = if (ENV.include?("LDAPCHECK_CONFIG_DIR") && File.directory?(ENV["LDAPCHECK_CONFIG_DIR"]) && File.readable?(ENV["LDAPCHECK_CONFIG_DIR"]))
+    File.expand_path(ENV["LDAPCHECK_CONFIG_DIR"])
+  else
+    File.expand_path(File.join(File.dirname(__FILE__),'../..','config'))
+  end
 
   config_files = Dir.glob("#{CONFIG_DIR}/*.yml")
   hashes = {}
@@ -15,6 +19,5 @@ module OpenShift
   end
 
   CONFIG = OpenStruct.new(hashes)
-
 
 end
