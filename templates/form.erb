@@ -15,8 +15,17 @@
         <legend>AOS Profile Checker</legend>
         <div class="content">
           <div class="pure-control-group <%= redhat_status %>">
-            <label for="redhat_id">Red Hat KRB5 ID</label>
+            <label for="redhat_id">Red Hat Email</label>
             <input id="redhat_id" name="redhat_id" type="text" placeholder="Red Hat ID" class="pure-u-1-2" required="" <% if redhat_id %>value="<%= redhat_id %>"<% end %> >
+            <% if redhat_reasons.any? %>
+              <div class="aos-form-message">One or more errors occured checking your Red Hat Email:
+                <ul>
+                  <% redhat_reasons.each do |reason| %>
+                    <li><%= reason %></li>
+                  <% end %>
+                </ul>
+              </div>
+            <% end %>
           </div>
           <div class="pure-control-group <%= github_status %>" id="form-github-section">
             <label for="github_id">GitHub ID</label>
@@ -38,7 +47,7 @@
                 <% if trello_id %>
                   <a href="https://trello.com/<%= trello_id %>"><%= trello_id %></a>
                 <% else %>
-                  Requires KRB5 ID
+                  Requires Red Hat Email
                 <% end %>
               </output>
             </div>
@@ -48,6 +57,11 @@
                 <output name="trello_fullname" id="trello_fullname" class="pure-u-1-2">
                   <%= trello_fullname %>
                 </output>
+              </div>
+            <% end %>
+            <% if trello_org_member %>
+              <div class="aos-form-message">
+                Your Trello account is already a member of <%= trello_org %>
               </div>
             <% end %>
             <% if trello_reasons.any? %>

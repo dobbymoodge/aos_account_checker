@@ -95,6 +95,24 @@ I18n.config.enforce_available_locales = false
       [valid, imperfect]
     end
 
+    def login_name_check(login, name)
+      reasons = []
+      status = CLASS_INVALID
+      valid, imperfect = valid_user_name(login, name)
+      if valid
+        if imperfect
+          status = CLASS_IMPERFECT
+          reasons += ["Profile Name field matches multiple users"]
+        else
+          status = CLASS_VALID
+        end
+      else
+        status = CLASS_INVALID
+        reasons += ["Profile Name field doesn't match any valid user"]
+      end
+      [status, reasons]
+    end
+
     def print_invalid_members(members, valid_user_names, invalid_user_names=nil)
       invalid_user_names = {} unless invalid_user_names
       members.each do |member|

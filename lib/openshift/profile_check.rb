@@ -13,7 +13,7 @@ module OpenShift
                   :github_status, :github_reasons, :github_id,
                   :trello_status, :trello_reasons, :trello_id,
                   :redhat_status, :redhat_reasons, :redhat_id
-    attr_accessor :trello_fullname
+    attr_accessor :trello_fullname, :trello_org_member, :trello_org
 
     def initialize()
       @github_status = CLASS_UNCHECKED
@@ -61,30 +61,11 @@ module OpenShift
     end
 
     def email_check(email)
-      #email = "${redhat_id}#{VALID_EMAIL_DOMAIN}"
       status = CLASS_INVALID
       if email && ldap.user_by_email(email)
         status = CLASS_VALID
       end
       status
-    end
-
-    def login_name_check(login, name)
-      reasons = []
-      status = CLASS_INVALID
-      valid, imperfect = ldap.valid_user_name(login, name)
-      if valid
-        if imperfect
-          status = CLASS_IMPERFECT
-          reasons += ["Profile Name field matches multiple users"]
-        else
-          status = CLASS_VALID
-        end
-      else
-        status = CLASS_INVALID
-        reasons += ["Profile Name field doesn't match any valid user"]
-      end
-      [status, reasons]
     end
 
     def github_user_check(user_name)
@@ -98,7 +79,7 @@ module OpenShift
         company = user['company']
         status = email_check(email)
         if status == CLASS_INVALID
-          status, reasons = login_name_check(login, name)
+          status, reasons = ldap.login_name_check(login, name)
         end
         if company !~ VALID_COMPANY_PATTERN
           status = CLASS_INVALID
@@ -130,39 +111,38 @@ module OpenShift
       pd = ProfileData.new()
       req = Rack::Request.new(env)
       trello_member = nil
-      pd.redhat_id = req.params['redhat_id'] if req.params['redhat_id']
+      email = req.params['redhat_id'] if req.params['redhat_id']
+      email = "#{email}#{VALID_EMAIL_DOMAIN}" if email && !email.include?('@')
+      pd.redhat_id = email if email
       pd.github_id = req.params['github_id'] if req.params['github_id']
       pd.trello_id = req.params['trello_id'] if req.params['trello_id']
-      email = "#{req.params['redhat_id']}#{VALID_EMAIL_DOMAIN}" if req.params['redhat_id']
-      pd.redhat_status = email_check(email)
+      # email = "#{req.params['redhat_id']}
+      if email
+        pd.redhat_status = email_check(email)
+        pd.redhat_reasons = ["No valid user matches supplied email address #{email}"] if pd.redhat_status == CLASS_INVALID
+      end
       begin
         pd.github_status, pd.github_reasons = github_user_check(pd.github_id) if req.params['github_id']
       rescue Exception => e
+        msg = "GitHub User lookup failed: #{e.message}"
+        puts msg
         pd.github_status = CLASS_ERROR
-        pd.github_reasons = ["GitHub User lookup failed: #{e.message}"]
+        pd.github_reasons = [msg]
       end
       if req.params['redhat_id']
         begin
-          begin
-            trello_member = trello.member(email)
-            if !trello_member
-              pd.trello_status = CLASS_INVALID
-            else
-              pd.trello_status = CLASS_VALID
-              pd.trello_id = trello_member.username
-              pd.trello_fullname = trello_member.full_name
-            end
-          rescue Exception => e
-            pd.trello_status = CLASS_INVALID
-          end
-          if pd.trello_status == CLASS_INVALID
-            pd.trello_reasons += ["No matching Trello account found for email #{email}"]
-          else
-            pd.trello_status, trello_reasons = trello_user_check(email, trello_member)
-            pd.trello_reasons += trello_reasons
+          pd.trello_status, pd.trello_reasons, trello_member = trello.user_email_check(email, ldap)
+          pd.trello_org = trello.org.display_name
+          if trello_member
+            pd.trello_fullname = trello_member.full_name
+            pd.trello_id = trello_member.username
+            pd.trello_org_member = trello.org_members_by_id.include? trello_member.id
           end
         rescue Exception => e
+          msg = "Trello User lookup failed: #{e.message}"
+          puts msg
           pd.trello_status = CLASS_ERROR
+          pd.trello_reasons = [msg]
         end
       end
       form_content = erb.result(pd.get_binding)
