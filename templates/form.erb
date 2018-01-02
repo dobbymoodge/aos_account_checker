@@ -30,6 +30,7 @@
           <div class="pure-control-group <%= github_status %>" id="form-github-section">
             <label for="github_id">GitHub ID</label>
             <input id="github_id" name="github_id" type="text" placeholder="GitHub ID" class="pure-u-1-2" <% if github_id %>value="<%= github_id %>"<% end %> >
+            <% if !github_status.empty? %><a href="https://github.com/<%= github_id %>">Profile</a><% end %>
             <% if github_reasons.any? %>
               <div class="aos-form-message">One or more errors occured checking your GitHub Profile:
                 <ul>
@@ -44,12 +45,15 @@
             <div>
               <label for="trello_id">Trello ID</label>
               <output name="trello_id" id="trello_id" class="pure-u-1-2<% if !trello_id %> need-input<% end %>">
-                <% if trello_id %>
-                  <a href="https://trello.com/<%= trello_id %>"><%= trello_id %></a>
-                <% else %>
-                  Requires Red Hat Email
-                <% end %>
+                <%# if trello_id %>
+                  <%# trello_id %>
+                <%# else %>
+                <%= trello_id || "Requires Red Hat Email" %>
+                <%# end %>
               </output>
+              <% if trello_id %>
+                <a href="https://trello.com/<%= trello_id %>">Profile</a>
+              <% end %>
             </div>
             <% if trello_fullname %>
               <div>

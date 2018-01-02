@@ -20,7 +20,7 @@ RESULTS_PER_PAGE=100
       url = "https://api.github.com/users/#{user}"
       puts "url: #{url}"
       user_result = nil
-      retry_do('GitHubHelper.user') do
+      retry_do('GitHubHelper.user', 2) do
         result = RestClient.get(url, {:params => params})
         user_result = JSON.parse(result)
       end
